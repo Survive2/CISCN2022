@@ -8,7 +8,7 @@
 
 先多申请几个chunk（大于8个），把最后一个留下其余的全部释放，并用0号来泄露堆的基址，将泄露的地址左移12位即可得到堆的基地址。由于chunk的大小为0x110，所以在填满tcache后，剩下的不与top chunk相邻的chunk将放入unsorted bin中，这也是前面要申请大于8个chunk的原因，然后再通过UAF泄露main arena的地址，从而泄露libc。
 
-泄露libc之后找到environ，通过UAF改写tcache的bk指针并再次释放tcache造成tcache double free，并将其fd指针改为environ的地址，并分配出去，由于environ保存的是当前进程的环境变量，这里面存放了栈上的地址，泄露出environ的值后并计算出edit的地址之后，再次Double Free分配到edit返回地址之后写入ROP调用链，(**注意，由于是64位的程序，前六个参数通过寄存器传递，所以需要控制RDI寄存器来传入"/bin/sh\x00"作为system的参数**)即可getshell。(我用one_gadget去打没有成功)
+泄露libc之后找到environ，通过UAF改写tcache的fd指针，并将其fd指针改为environ的地址，分配出去以后，由于environ保存的是当前进程的环境变量，这里面存放了栈上的地址，泄露出environ的值后并计算出edit的地址之后，再次修改fd指针，分配到edit返回地址之后写入ROP调用链，(**注意，由于是64位的程序，前六个参数通过寄存器传递，所以需要控制RDI寄存器来传入"/bin/sh\x00"作为system的参数**)即可getshell。(我用one_gadget去打没有成功)
 
 ***注：此处system若是无法使用，可改为execve，效果应该是一样的***
 
